@@ -1,6 +1,7 @@
 
 use super::*;
 use crate as pallet_nfts;
+// use crate as pallet_balances;
 
 use frame_support::{
 	construct_runtime, parameter_types,

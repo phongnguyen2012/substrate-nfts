@@ -6,6 +6,7 @@
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
+use frame_system::EnsureSigned;
 use pallet_grandpa::{
 	fg_primitives, AuthorityId as GrandpaId, AuthorityList as GrandpaAuthorityList,
 };
@@ -16,7 +17,7 @@ use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
 	traits::{
-		AccountIdLookup, BlakeTwo256, Block as BlockT, IdentifyAccount, NumberFor, One, Verify,
+		AccountIdLookup, BlakeTwo256, Block as BlockT, IdentifyAccount, NumberFor, One, Verify
 	},
 	transaction_validity::{TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, MultiSignature,
@@ -50,7 +51,7 @@ pub use sp_runtime::{Perbill, Permill};
 
 /// Import the template pallet.
 pub use pallet_template;
-pub use pallet_nfts;
+// pub use pallet_nfts;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -130,6 +131,7 @@ pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
 pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
+pub const DOLLARS: Balance = 1;
 
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
@@ -281,28 +283,51 @@ impl pallet_sudo::Config for Runtime {
 impl pallet_template::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
+parameter_types! {
+	pub const AssetDeposit: Balance = 100 * DOLLARS;
+	pub const ApprovalDeposit: Balance = 1 * DOLLARS;
+	pub const StringLimit: u32 = 50;
+	pub const MetadataDepositBase: Balance = 10 * DOLLARS;
+	pub const MetadataDepositPerByte: Balance = 1 * DOLLARS;
+}
+parameter_types! {
+	pub Features: PalletFeatures = PalletFeatures::all_enabled();
+}
+parameter_types! {
+	
+	pub const CollectionDeposit: Balance = 100 * DOLLARS;
+	pub const ItemDeposit: Balance = 1 * DOLLARS;
+	pub const KeyLimit: u32 = 32;
+	pub const ValueLimit: u32 = 256;
+	pub const ApprovalsLimit: u32 = 20;
+	pub const ItemAttributesApprovalsLimit: u32 = 20;
+	pub const MaxTips: u32 = 10;
+	pub const MaxDeadlineDuration: BlockNumber = 12 * 30 * DAYS;
+}
 impl pallet_nfts::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type CollectionId = u32;
 	type ItemId = u32;
 	type Currency = Balances;
-	type CreateOrigin = AsEnsureOriginWithArg<frame_system::EnsureSigned<u64>>;
-	type ForceOrigin = frame_system::EnsureRoot<u64>;
+	type ForceOrigin = frame_system::EnsureRoot<AccountId>;
+	type CollectionDeposit = CollectionDeposit;
+	type ItemDeposit = ItemDeposit;
+	type MetadataDepositBase = MetadataDepositBase;
+	type AttributeDepositBase = MetadataDepositBase;
+	type DepositPerByte = MetadataDepositPerByte;
+	type StringLimit = StringLimit;
+	type KeyLimit = KeyLimit;
+	type ValueLimit = ValueLimit;
+	type ApprovalsLimit = ApprovalsLimit;
+	type ItemAttributesApprovalsLimit = ItemAttributesApprovalsLimit;
+	type MaxTips = MaxTips;
+	type MaxDeadlineDuration = MaxDeadlineDuration;
+	type Features = Features;
+	type WeightInfo = pallet_nfts::weights::SubstrateWeight<Runtime>;
+	#[cfg(feature = "runtime-benchmarks")]
+	type Helper = ();
+	type CreateOrigin = AsEnsureOriginWithArg<EnsureSigned<AccountId>>;
 	type Locker = ();
-	type CollectionDeposit = ConstU64<2>;
-	type ItemDeposit = ConstU64<1>;
-	type MetadataDepositBase = ConstU64<1>;
-	type AttributeDepositBase = ConstU64<1>;
-	type DepositPerByte = ConstU64<1>;
-	type StringLimit = ConstU32<50>;
-	type KeyLimit = ConstU32<50>;
-	type ValueLimit = ConstU32<50>;
-	type ApprovalsLimit = ConstU32<10>;
-	type ItemAttributesApprovalsLimit = ConstU32<2>;
-	type MaxTips = ConstU32<10>;
-	type MaxDeadlineDuration = ConstU64<10000>;
-	type Features = PalletFeatures;
-	type WeightInfo = ();
 
 }
 

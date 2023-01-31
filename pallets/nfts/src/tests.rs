@@ -5,7 +5,7 @@ use frame_support::{
 	assert_noop, assert_ok,
 	dispatch::Dispatchable,
 	traits::{
-		tokens::nonfungibles::{Destroy, Mutate},
+		tokens::{nonfungibles_v2::{Destroy, Mutate}},
 		Currency, Get,
 	},
 };
