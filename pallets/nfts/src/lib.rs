@@ -3,12 +3,12 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
-// #[cfg(feature = "runtime-benchmarks")]
-// mod benchmarking;
-// #[cfg(test)]
-// pub mod mock;
-// #[cfg(test)]
-// mod tests;
+#[cfg(feature = "runtime-benchmarks")]
+mod benchmarking;
+#[cfg(test)]
+pub mod mock;
+#[cfg(test)]
+mod tests;
 
 mod common_functions;
 pub mod features;
@@ -1278,6 +1278,7 @@ pub mod pallet {
 		/// account any already reserved funds.
 		///
 		/// - `collection`: The identifier of the collection whose item's metadata to set.
+		/// 
 		/// - `maybe_item`: The identifier of the item whose metadata to set.
 		/// - `namespace`: Attribute's namespace.
 		/// - `key`: The key of the attribute.
